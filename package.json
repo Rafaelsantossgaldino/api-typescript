@@ -5,6 +5,7 @@
   "author": "Rafael",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "http-status-codes": "^2.2.0"
   },
