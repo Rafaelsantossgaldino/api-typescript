@@ -5,16 +5,21 @@ import { SchemaOf, ValidationError } from 'yup';
 
 type TProperty =  'body' | 'header' | 'params' | 'query';
 
-type TAllSchemas = Record<TProperty, SchemaOf<any>>
+type TGetSchema = <T>(schema:SchemaOf<T>) => SchemaOf<T>
 
-type TValidation = (shemas: Partial<TAllSchemas>) => RequestHandler;
+type TAllSchemas = Record<TProperty, SchemaOf<any>>;
 
-export const validation: TValidation = (shemas) => async (req, res, next) => {
+type TGetAllSchemas = (getSchema: TGetSchema) => Partial<TAllSchemas>
+
+type TValidation = (getAllSchemas: TGetAllSchemas) => RequestHandler;
+
+export const validation: TValidation = (getAllSchemas) => async (req, res, next) => {
+  const schemas = getAllSchemas(schema => schema);
   const errorsResult:  Record<string, Record<string, string>> = {};
 
-  Object.entries(shemas).forEach(([key, shema]) => {
+  Object.entries(schemas).forEach(([key, schema]) => {
     try {
-      shema.validateSync(req[key as TProperty], { abortEarly: false });
+      schema.validateSync(req[key as TProperty], { abortEarly: false });
     } catch (error){
       const yupError = error as ValidationError;
       const errors:  Record<string, string> = {};
